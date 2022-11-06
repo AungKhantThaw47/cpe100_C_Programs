@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node
+{
+    int value;
+    struct Node *previous;
+    struct Node *next;
+};
+
+struct LinkedList
+{
+    struct Node *tail;
+    struct Node *head;
+    int length;
+    void (*addNode)(struct LinkedList *, int);
+    void (*print)(struct LinkedList *);
+    void (*traverse)(struct LinkedList *);
+};
+
+void AddNewNode(struct LinkedList *LL, int value)
+{
+    // printf("Add\n");
+    struct Node *node = (struct Node *)malloc(sizeof(struct Node));
+    LL->length++;
+    node->value = value;
+    node->previous = LL->head;
+    node->next = LL->tail;
+    // printf("New node value: %d\n",node->value);
+    // printf("New node: %d\n", node);
+    if (LL->tail == NULL)
+    {
+        LL->tail = node;
+        LL->head = node;
+    }
+    else
+    {
+        LL->head->next = node;
+        LL->head = node;
+        LL->tail->previous = node;
+        while ( (node->value < node->previous->value)&&(node!=LL->tail))
+        {
+            // printf("Node : %d :: Value : %d\n", node,node->value);
+            // printf("Previous Node : %d :: Value : %d\n", node->previous,node->previous->value);
+            struct Node *TempNode = node->previous;
+            int temp = node->value;
+            node->value = node->previous->value;
+            node->previous->value = temp;
+            node = TempNode;
+        }
+    }
+}
+
+void DisplayNodes(struct LinkedList *LL)
+{
+    // printf("Display\n");
+    struct Node *node = LL->tail;
+    // printf("%d\n",(*node).value);
+    do
+    {
+        // printf("node: %d\n", node);
+        printf("%d\n", node->value);
+        struct Node *temp = node->next;
+        node = temp;
+    } while (node != LL->tail);
+    // printf("Lenght: %d\n", LL->length);
+}
+
+void Traverse(struct LinkedList *LL)
+{
+    struct Node *EndNode = LL->tail;
+    struct Node *StartNode = LL->head;
+    do
+    {
+        printf("%d\n", StartNode->value);
+        struct Node *TempNode = StartNode->previous;
+        StartNode = TempNode;
+    } while (StartNode != LL->head);
+}
+
+int main()
+{
+    int len;
+    struct LinkedList List;
+    List.tail = NULL;
+    List.head = NULL;
+    List.length = 0;
+    List.addNode = AddNewNode;
+    List.print = DisplayNodes;
+    List.traverse = Traverse;
+    scanf("%d", &len);
+    for (int i = 0; i < len; i++)
+    {
+        int temp;
+        scanf("%d", &temp);
+        List.addNode(&List, temp);
+    }
+    List.print(&List);
+    return 0;
+}
